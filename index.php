@@ -60,4 +60,3 @@ print_r(sortArray($arr));
 echo "<br>3.2)Встроенная функция сортировки <br>";
 sort($arr);
 print_r($arr);
-
