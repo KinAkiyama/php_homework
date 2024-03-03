@@ -28,10 +28,12 @@ echo "COOKIE<br>";
 if (isset($_COOKIE['firstname']) && isset($_COOKIE['lastname'])){
     if (!empty($_COOKIE['firstname']) && !empty($_COOKIE['lastname'])){
         echo "Welcome!";
-    } 
+    } else {
+        echo "Please check that the data entered is correct<br><br>";
+    }
 } else {
     echo "Please fill in all fields of the form<br><br>";
 }
 
-// я сделал else для первого if в этом случае, потому что если, ввести 0 в поле, то строка проходит первую провеку,
-// но не проходит втору. 
+// я сделал else для первого if в этом случае, потому что, если ввести 0 в поле, то строка проходит первую провеку,
+// но не проходит вторую
