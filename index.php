@@ -39,5 +39,3 @@
 
     <button type="submit">Enter</button>
 </form>
-
-
