@@ -1,0 +1,16 @@
+[{
+	"name": "animal 1",
+	"type": "Fox"
+},
+{
+	"name": "animal 2",
+	"type": "Elephant"
+},
+{
+	"name": "animal 3",
+	"type": "Dog"
+},
+{
+	"name": "animal 4",
+	"type": "Crane"
+}]
