@@ -1,67 +1,83 @@
 <?php
 
-$method = ($_SERVER['REQUEST_METHOD'] == 'GET') ? $_GET : $_POST;
+session_start();
 
-//2)
+class User {
+    private string $username;
+    private string $password;
 
-$user = [
-    'firstName' => $method['firstName'],
-    'lastName' => $method['lastName'],
-    'phoneNumber' => $method['phoneNumber'],
-    'address' => $method['address'],
-    'birthday' => $method['birthday'],
-    'email' => $method['email'],
-];
+    public function setUsername ($string): void{
+        $this->username = $string;
+    }
 
-if (preg_match("/\S{2,}/" ,$user['firstName'])){
-    echo "Success!<br>";
-} else {
-    echo "Invalid Name<br>";
+    public function setPassword ($string): void{
+        $this->password = $string;
+    }
+
+    public function getUsername (): string{
+        return $this->username;
+    }
+
+    public function getPassword (): string{
+        return $this->password;
+    }
+
+    public function sayHello (): void{
+        echo "Hello $this->username!<br>";
+    }
 }
 
-if (preg_match("/\S{2,}/",$user['lastName'])){
-    echo "Success!<br>";
-} else {
-    echo "Invalid Surame<br>";
+//1) вынести валидацию различных полей в отдельный класс со статическими переменными и проверять через статические методы данные
+
+class Validator {
+    static public string $patternForUsername = '/[A-Za-z-_]{3,}/';
+    static public string $patternForPassword = '/[\S]{6,21}/';
+
+    static public function validateUsername($string): bool{
+        if (preg_match(self::$patternForUsername,$string)){
+            return true;
+        } else {return false;}
+    }
+
+    static public function validatePassword($string): bool{
+        if (preg_match(self::$patternForPassword,$string)){
+            return true;
+        } else {return false;}
+    }
 }
 
-if (preg_match("/[+]375-\d{2}-\d{3}-\d{2}-\d{2}/",$user['phoneNumber'])){
-    echo "Success!<br>";
+
+if (isset($_POST['username']) && isset($_POST['password'])){
+    if (!empty($_POST['username']) && !empty($_POST['password'])){
+        $user = new User();
+        if (Validator::validateUsername($_POST['username']) && Validator::validatePassword($_POST['password'])){
+            $user->setUsername($_POST['username']);
+            $user->setPassword($_POST['password']);
+            
+            $data = "Username: ".$user->getUsername(). " Password: ". $user->getPassword();
+            $record = file_put_contents('./userdata.txt',$data);
+
+            if ($record == true){
+                echo "Success!<br><br>";
+            } else {
+                echo 'There was an error writing this file<br><br>';
+            }
+        } else {
+            echo "Error!";
+        }
+    } else {
+        echo 'Please check that the data entered is correct<br><br>';
+    }
 } else {
-    echo "Invalid Phonenumber<br>";
+    echo 'Please fill in all fields of the form<br><br>';
 }
 
-if (preg_match("/[A-Za-z]{3,}\s[A-Za-z-\s?A-Za-z]{3,}\s[A-Za-z-\s?A-Za-z]{3,}/",$user['address'])){
-    echo "Success!<br>";
+$_SESSION['login'] = explode(" ",file_get_contents('./userdata.txt'))[1];
+$_SESSION['id'] = 1;
+$_SESSION['password'] = explode(" ",file_get_contents('./userdata.txt'))[3];
+
+if ($user->getUsername() == $_SESSION['login']){
+    echo $user->sayHello();
 } else {
-    echo "Invalid Adderss<br>";
+    echo "incorrect login or password!";
 }
-
-if (preg_match("/[0-3][0-9]-[0-1][1-9]-[1-2]9[4-9][0-9]/",$user['birthday'])){
-    echo "Success!<br>";
-} else {
-    echo "Invalid birthday date<br>";
-}
-
-//У меня при введении несуществующего имейла не работала отправка формы, поэтому, наверное,
-//можно считать, что валидация имейла на клиенте лучше чем через любое regex
-
-
-//3)вывести возраст согласно дате указанной в анкете
-$age = date_diff(date_create($user['birthday']),date_create())->y;
-
-echo "<br>Возраст пользователя -> ". $age. "<br><br>";
-
-//4)преобразовать строку адреса в массив
-$explodedAddress = function ($address){
-    $address = [
-        'address' => [
-            'country' => explode(' ',$address)[0],
-            'city' => explode(' ',$address)[1],
-            'street' => explode(' ',$address)[2],
-        ]
-    ];
-    return $address;
-};
-$user = array_replace($user, $explodedAddress($user['address']));
-print_r($user);
